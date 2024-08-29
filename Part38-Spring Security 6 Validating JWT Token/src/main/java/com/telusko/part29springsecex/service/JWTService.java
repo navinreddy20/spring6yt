@@ -70,12 +70,21 @@ public class JWTService {
                 .getPayload();
     }
 
+    /*
+
+    This `userName.equals(userDetails.getUsername()` is redundant because,
+
+    * Will always result in true
+    * The username is retrieved from the token in the JwtFilter
+    * The UserDetails argument is initialised in the JwtFilter by passing the same username retrieved from the received bearer token
+
+     */
     public boolean validateToken(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
