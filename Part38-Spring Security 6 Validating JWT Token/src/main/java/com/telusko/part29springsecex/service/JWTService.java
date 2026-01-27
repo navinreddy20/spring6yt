@@ -1,16 +1,13 @@
 package com.telusko.part29springsecex.service;
 
+import com.telusko.part29springsecex.config.SourceConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,18 +16,10 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
+    private final SourceConfig sourceConfig;
 
-    private String secretkey = "";
-
-    public JWTService() {
-
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+    public JWTService(SourceConfig sourceConfig) {
+        this.sourceConfig = sourceConfig;
     }
 
     public String generateToken(String username) {
@@ -48,8 +37,7 @@ public class JWTService {
     }
 
     private SecretKey getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretkey);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(sourceConfig.getJwtKey().getBytes());
     }
 
     public String extractUserName(String token) {
